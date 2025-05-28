@@ -1,7 +1,10 @@
 Data/data_jam.parquet
 Data/data_jam_full.csv
+<<<<<<< HEAD
 Data/data_jam_full.parquet
 *.csv
 Data/parquet/data_jam.parquet
 Data/parquet/old/data_jam_full.parquet
 /Data/old
+=======
+>>>>>>> parent of 0680040 (newer data)
