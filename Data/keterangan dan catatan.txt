@@ -1,0 +1,9 @@
+data_hari_1 : hasil penghapusan kolom
+data_hari_2 : hasil dari menghapus meter_id yang tidak digunakan
+data_hari_3 : pivot table
+data_hari_4 : hasil potong data sejak 1 juni 2024
+data_hari_5 : hasil backward fill, meter_id yang kosong > 10% dihapus
+data_hari_6 : hasil menjumlahkan power dari meter_id dalam satu gedung
+data_hari_7 : hasil Ubah nomor meter_id menjadi nama gedung
+
+link data luas bangunan: https://satudata.itb.ac.id/public/preview/8542dafd-8eab-4de8-a95a-60fb74312795/daftar-nama-gedung-dan-luas-tanah-bangunan-itb-dalam-m2-tahun-2024
