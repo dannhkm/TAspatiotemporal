@@ -4,6 +4,9 @@ import seaborn as sns
 import matplotlib.patches as mpatches
 import os
 
+# ----------------------------------------------------------------------------
+# Data Preprocessing Functions
+# ----------------------------------------------------------------------------
 
 # Fungsi untuk mengkonversi file antara format CSV dan Parquet
 def convert_file(path_input, path_output, format_target, save_index=False):
@@ -1036,4 +1039,66 @@ def visualisasi_imputasi_suhu(
     else:
         # Pesan error yang lebih informatif
         print(f"Pilihan plot tidak valid: '{plot_month}'. Gunakan 'all' atau angka bulan (misal: 7 untuk Juli).")
+
+# ----------------------------------------------------------------------------
+# Modelling Functions
+# ----------------------------------------------------------------------------
+# --- PERUBAHAN DI SINI ---
+# Definisikan fungsi visualisasi (bisa Anda pindahkan ke mydef.py)
+def plot_prediksi_vs_aktual(results_df, meter_id_to_plot, start_date_str='all', end_date_str='all'):
+    """
+    Membuat plot perbandingan nilai aktual vs prediksi untuk satu gedung atau semua gedung,
+    pada rentang waktu tertentu atau seluruh rentang waktu.
+    """
+    # Fungsi internal untuk membuat satu plot
+    def _buat_plot_tunggal(data, title):
+        plt.figure(figsize=(18, 6))
+        sns.lineplot(data=data, x='timestamp', y='target_aktual', label='Aktual', color='red', marker='o', markersize=4, alpha=0.7)
+        sns.lineplot(data=data, x='timestamp', y='prediksi', label='Prediksi', color='blue', linestyle='--')
+        plt.title(title, fontsize=16)
+        plt.xlabel('Tanggal', fontsize=12)
+        plt.ylabel('Konsumsi Energi (kWh)', fontsize=12)
+        plt.xticks(rotation=45)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+    # Tentukan rentang waktu untuk difilter
+    if start_date_str.lower() == 'all' and end_date_str.lower() == 'all':
+        date_filtered_df = results_df.copy()
+        date_info = "Seluruh Rentang Waktu Uji"
+    else:
+        date_filtered_df = results_df[
+            (results_df['timestamp'] >= start_date_str) &
+            (results_df['timestamp'] <= end_date_str)
+        ]
+        date_info = f"{start_date_str} hingga {end_date_str}"
+
+    if date_filtered_df.empty:
+        print("Peringatan: Tidak ada data pada rentang tanggal yang dipilih.")
+        return
+
+    # Tentukan gedung yang akan diplot
+    if meter_id_to_plot.lower() == 'all':
+        # Jika 'all', ulangi untuk setiap gedung unik
+        unique_meters = sorted(date_filtered_df['meter_id'].unique())
+        print(f"Membuat plot untuk {len(unique_meters)} gedung...")
+        for meter_id in unique_meters:
+            plot_data = date_filtered_df[date_filtered_df['meter_id'] == meter_id]
+            if not plot_data.empty:
+                title = f'Perbandingan Prediksi vs Aktual untuk Gedung {meter_id}\n({date_info})'
+                _buat_plot_tunggal(plot_data, title)
+    else:
+        # Jika satu gedung, buat plot untuk gedung tersebut saja
+        plot_data = date_filtered_df[date_filtered_df['meter_id'] == meter_id_to_plot]
+        if plot_data.empty:
+            print(f"Peringatan: Tidak ada data untuk gedung '{meter_id_to_plot}' pada rentang tanggal yang dipilih.")
+            return
+        title = f'Perbandingan Prediksi vs Aktual untuk Gedung {meter_id_to_plot}\n({date_info})'
+        _buat_plot_tunggal(plot_data, title)
+
+
+
+
 
