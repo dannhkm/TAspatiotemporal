@@ -1043,7 +1043,7 @@ def visualisasi_imputasi_suhu(
 # ----------------------------------------------------------------------------
 # Modelling Functions
 # ----------------------------------------------------------------------------
-# --- PERUBAHAN DI SINI ---
+
 # Definisikan fungsi visualisasi (bisa Anda pindahkan ke mydef.py)
 def plot_prediksi_vs_aktual(results_df, meter_id_to_plot, start_date_str='all', end_date_str='all'):
     """
@@ -1098,7 +1098,44 @@ def plot_prediksi_vs_aktual(results_df, meter_id_to_plot, start_date_str='all', 
         title = f'Perbandingan Prediksi vs Aktual untuk Gedung {meter_id_to_plot}\n({date_info})'
         _buat_plot_tunggal(plot_data, title)
 
-
+# Fungsi untuk membuat plot perbandingan model prediksi 
+def plot_perbandingan_model(df, meter_id, start_date, end_date):
+    """
+    Membuat plot perbandingan nilai aktual vs prediksi untuk satu gedung dalam rentang waktu tertentu.
+    Fungsi ini sekarang lebih cerdas dalam menangani data LSTM yang mungkin kosong.
+    """
+    plot_data = df[
+        (df['meter_id'] == meter_id) &
+        (df['timestamp'] >= start_date) &
+        (df['timestamp'] <= end_date)
+    ].copy()
+    
+    if plot_data.empty:
+        print(f"Peringatan: Tidak ada data untuk gedung '{meter_id}' pada rentang tanggal yang dipilih.")
+        return
+    
+    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.figure(figsize=(14, 6))
+    
+    # Plot data aktual. Menggunakan 'target_aktual' yang konsisten.
+    sns.lineplot(data=plot_data, x='timestamp', y='target_aktual', label='Aktual', color='black', linewidth=2.5, marker='o', markersize=4) # <-- DIUBAH
+    
+    # Plot prediksi LightGBM
+    sns.lineplot(data=plot_data, x='timestamp', y='prediksi_lgbm', label='Prediksi LightGBM', color='dodgerblue', linestyle='--')
+    
+    # Cek apakah ada prediksi LSTM untuk diplot (tidak semua NaN)
+    if not plot_data['prediksi_lstm'].isnull().all():
+        sns.lineplot(data=plot_data, x='timestamp', y='prediksi_lstm', label='Prediksi LSTM', color='red', linestyle=':')
+    else:
+        print(f"Info: Prediksi LSTM tidak tersedia untuk gedung '{meter_id}' pada rentang waktu ini (kemungkinan karena periode pemanasan).")
+    
+    plt.title(f'Perbandingan Prediksi Model untuk Gedung: {meter_id}', fontsize=16, pad=20)
+    plt.xlabel('Tanggal', fontsize=12)
+    plt.ylabel('Konsumsi Energi (kWh)', fontsize=12)
+    plt.legend(title='Legenda')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
 
 
 
